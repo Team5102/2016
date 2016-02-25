@@ -2,7 +2,6 @@ package org.usfirst.frc.team5102.robot.util;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Joystick.RumbleType;
-import edu.wpi.first.wpilibj.Timer;
 
 public class Xbox
 {
@@ -10,12 +9,12 @@ public class Xbox
 	
 	private double deadband = 0.1;
 	
-	private Timer rumbleTimer;
+	private CustomTimer rumbleTimer;
 	
 	public Xbox(int port)
 	{
 		stick = new Joystick(port);
-		rumbleTimer = new Timer();
+		rumbleTimer = new CustomTimer();
 	}
 	
 	/*
@@ -115,16 +114,13 @@ public class Xbox
 		stick.setRumble(RumbleType.kLeftRumble, 1);
 		stick.setRumble(RumbleType.kRightRumble, 1);
 		
-		rumbleTimer.start();
+		rumbleTimer.waitFor(0.5);
 	}
 	
 	public void updateRumbleTimer()
 	{
-		if(rumbleTimer.get() > 0.5)
+		if(!rumbleTimer.isRunning())
 		{
-			rumbleTimer.stop();
-			rumbleTimer.reset();
-			
 			stick.setRumble(RumbleType.kLeftRumble, 0);
 			stick.setRumble(RumbleType.kRightRumble, 0);
 		}

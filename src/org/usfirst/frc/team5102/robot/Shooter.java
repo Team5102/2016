@@ -1,5 +1,6 @@
 package org.usfirst.frc.team5102.robot;
 
+import org.usfirst.frc.team5102.robot.util.CustomTimer;
 import org.usfirst.frc.team5102.robot.util.RobotMap;
 
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
@@ -7,7 +8,6 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Talon;
-import edu.wpi.first.wpilibj.Timer;
 
 public class Shooter extends RobotElement
 {
@@ -17,11 +17,10 @@ public class Shooter extends RobotElement
 	DigitalInput ballLoaded;
 	
 	int shootCounter;
-	boolean waitingToShoot;
 	static boolean shooting;
 	AnalogPotentiometer shooterTiltAngle;
 		
-	Timer shootTimer;
+	CustomTimer shootTimer;
 	
 	PIDController shooterPID;
 	
@@ -38,31 +37,13 @@ public class Shooter extends RobotElement
 		
 		shootCounter = 0;
 		shooting = false;
-		waitingToShoot = false;
 		
-		shootTimer = new Timer();
+		shootTimer = new CustomTimer();
 		
 		shooterTiltAngle = new AnalogPotentiometer(RobotMap.shooterTiltPot);
 				
 		//shooterPID = new PIDController(1.0,0.0,0.0,shooterTiltAngle,shooterTiltMotor);
 		//shooterPID.enable();
-	}
-	
-	public void startShootTimer()
-	{
-		waitingToShoot = true;
-		shootTimer.start();
-	}
-	
-	public void updateShootTimer()
-	{
-		if(shootTimer.get() > 1.5)
-		{
-			shootTimer.stop();
-			shootTimer.reset();
-			shootCounter++;
-			waitingToShoot = false;
-		}
 	}
 	
 	public void setDefault()
@@ -76,15 +57,15 @@ public class Shooter extends RobotElement
 	
 	public void tiltShooter()
 	{
-		shooterTiltMotor.set(controller.applyDeadband(controller.getLeftStickY())/4);
+		shooterTiltMotor.set(controller.applyDeadband(controller.getLeftStickY())/2);
 		//shooterPID.setSetpoint((controller.applyDeadband(controller.getLeftStickY())+1)*2.5);
 	}
 	
-	public void shootBall()
+	public void shootBall(Mode mode)
 	{
 		if(shooting)
 		{
-			if(!waitingToShoot)
+			if(!shootTimer.isRunning())
 			{
 				switch(shootCounter)
 				{
@@ -92,12 +73,14 @@ public class Shooter extends RobotElement
 						shooterMotor1.set(1.0);
 						shooterMotor2.set(1.0);
 						System.out.println("shooter motors started");
-						startShootTimer();
+						shootCounter++;
+						shootTimer.waitFor(1.5);
 						break;
 					case 1:
 						shooterTriggerMotor.set(-1.0);
 						System.out.println("trigger activated");
-						startShootTimer();
+						shootCounter++;
+						shootTimer.waitFor(1.5);
 						break;
 					case 2:
 						setDefault();
@@ -108,51 +91,19 @@ public class Shooter extends RobotElement
 			}
 			else
 			{
-				updateShootTimer();
+				shootTimer.update();
 			}
 			
 		}
 		else
 		{
-			if(controller.getButtonA())
+			if(controller.getButtonA() && mode == Mode.teleop)
 			{
 				//if(ballLoaded.get())		//TODO add limit switch to robot
 				{
 					shooting = true;
 					System.out.println("Shooting Ball");
 				}
-			}
-		}
-	}
-	
-	public void autonShootBall()
-	{
-		if(shooting)
-		{
-			if(!waitingToShoot)
-			{
-				switch(shootCounter)
-				{
-					case 0:
-						shooterMotor1.set(1.0);
-						shooterMotor2.set(1.0);
-						System.out.println("shooter motors started");
-						startShootTimer();
-						break;
-					case 1:
-						shooterTriggerMotor.set(-1.0);
-						System.out.println("trigger activated");
-						startShootTimer();
-						break;
-					case 2:
-						setDefault();
-						shootCounter = 0;
-						shooting = false;
-						break;				}
-			}
-			else
-			{
-				updateShootTimer();
 			}
 		}
 	}
@@ -180,7 +131,7 @@ public class Shooter extends RobotElement
 	
 	public void teleop()
 	{		
-		shootBall();
+		shootBall(Mode.teleop);
 		tiltShooter();
 		
 		if(!shooting)
@@ -191,6 +142,6 @@ public class Shooter extends RobotElement
 	
 	public void autonomous()
 	{
-		autonShootBall();
+		shootBall(Mode.auton);
 	}
 }

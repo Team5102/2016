@@ -1,50 +1,40 @@
 package org.usfirst.frc.team5102.robot;
 
+import org.usfirst.frc.team5102.robot.util.CustomTimer;
 import org.usfirst.frc.team5102.robot.util.RobotMap;
 
 import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.Timer;
 
 public class Suspension
 {
 	Solenoid leftSuspension, rightSuspension;
-	Timer suspensionTimer;
+	CustomTimer suspensionTimer;
 	
 	Suspension()
 	{
 		leftSuspension = new Solenoid(RobotMap.leftSuspension);
 		rightSuspension = new Solenoid(RobotMap.rightSuspension);
 		
-		suspensionTimer = new Timer();
-		suspensionTimer.start();
+		suspensionTimer = new CustomTimer();
 	}
 	
 	public void updateSuspensionTimer()
 	{
-		if(leftSuspension.get())
+		if(!suspensionTimer.isRunning())
 		{
-			if(suspensionTimer.get() > 1)
+			if(leftSuspension.get())
 			{
-				suspensionTimer.stop();
-				suspensionTimer.reset();
-				
 				leftSuspension.set(false);
 				rightSuspension.set(false);
 				
-				suspensionTimer.start();
+				suspensionTimer.waitFor(10.0);
 			}
-		}
-		else
-		{
-			if(suspensionTimer.get() > 10)
+			else
 			{
-				suspensionTimer.stop();
-				suspensionTimer.reset();
-				
 				leftSuspension.set(true);
 				rightSuspension.set(true);
 				
-				suspensionTimer.start();
+				suspensionTimer.waitFor(1.0);
 			}
 		}
 	}
