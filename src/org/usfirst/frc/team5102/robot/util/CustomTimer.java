@@ -11,7 +11,6 @@ public class CustomTimer
 	public CustomTimer()
 	{
 		timer = new Timer();
-		
 		timerRunning = false;
 		timeToWait = 0;
 	}
@@ -25,6 +24,7 @@ public class CustomTimer
 	
 	public boolean isRunning()
 	{
+		update();
 		return timerRunning;
 	}
 	

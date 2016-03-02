@@ -50,10 +50,6 @@ public class Autonomous
 					break;
 			}
 		}
-		else
-		{
-			timer.update();		//check if timer has gotten to the specified time
-		}
 	}
 	
 	public void autonomous2()
@@ -75,10 +71,6 @@ public class Autonomous
 					break;
 			}
 		}
-		else
-		{
-			timer.update();
-		}
 	}
 	
 	public void autonomous3()
@@ -99,10 +91,6 @@ public class Autonomous
 					
 					break;
 			}
-		}
-		else
-		{
-			timer.update();
 		}
 	}
 }

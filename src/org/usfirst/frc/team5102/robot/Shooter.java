@@ -89,11 +89,6 @@ public class Shooter extends RobotElement
 						break;
 				}
 			}
-			else
-			{
-				shootTimer.update();
-			}
-			
 		}
 		else
 		{

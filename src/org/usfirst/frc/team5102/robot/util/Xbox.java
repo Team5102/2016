@@ -10,7 +10,7 @@ public class Xbox
 	private double deadband = 0.1;
 	
 	private CustomTimer rumbleTimer;
-	
+		
 	public Xbox(int port)
 	{
 		stick = new Joystick(port);
