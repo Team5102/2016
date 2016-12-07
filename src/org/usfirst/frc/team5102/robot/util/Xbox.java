@@ -7,7 +7,7 @@ public class Xbox
 {
 	private Joystick stick;
 	
-	private double deadband = 0.16;
+	private double deadband = 0.1;
 	
 	private CustomTimer rumbleTimer;
 	
@@ -96,11 +96,6 @@ public class Xbox
 	public double getRightTriggerAxis()
 	{
 		return stick.getRawAxis(3);
-	}
-	
-	public int getPOV()
-	{
-		return stick.getPOV();
 	}
 	
 	public double applyDeadband(double magnitude)
