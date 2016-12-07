@@ -1,10 +1,12 @@
 package org.usfirst.frc.team5102.robot;
 
+import org.usfirst.frc.team5102.robot.RobotElement.Mode;
 import org.usfirst.frc.team5102.robot.util.CustomTimer;
 import org.usfirst.frc.team5102.robot.util.RobotMap;
 
 import edu.wpi.first.wpilibj.AnalogPotentiometer;
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Talon;
@@ -24,15 +26,21 @@ public class Shooter extends RobotElement
 	
 	PIDController shooterPID;
 	
+	boolean tilting;
+	
 	Shooter()
 	{
 		super(1);
 		
 		shooterMotor1 = new CANTalon(RobotMap.shooterMotor1);
+		
 		shooterMotor2 = new CANTalon(RobotMap.shooterMotor2);
+		shooterMotor2.changeControlMode(TalonControlMode.Follower);
+		shooterMotor2.set(shooterMotor1.getDeviceID());
+		
 		shooterTiltMotor = new Talon(RobotMap.shooterTiltMotor);
 		shooterTriggerMotor = new CANTalon(RobotMap.shooterTriggerMotor);
-				
+		
 		ballLoaded = new DigitalInput(RobotMap.shooterLimit);
 		
 		shootCounter = 0;
@@ -41,18 +49,55 @@ public class Shooter extends RobotElement
 		shootTimer = new CustomTimer();
 		
 		shooterTiltAngle = new AnalogPotentiometer(RobotMap.shooterTiltPot);
+		
+		tilting = false;
 	}
 	
 	public void setDefault()
 	{
 		shooterMotor1.set(0.0);
-		shooterMotor2.set(0.0);
 		shooterTriggerMotor.set(0.0);
 	}
 	
 	public void tiltShooter()
 	{
-		shooterTiltMotor.set(controller.applyDeadband(controller.getLeftStickY())/2);
+		
+		if(getAngle() < 0)
+		{
+			//shooterTiltMotor.set(controller.applyDeadband(controller.getLeftStickY())/2);
+			//System.out.println(getAngle());
+			
+			if(controller.applyDeadband(controller.getLeftStickY()) < 0)
+			{
+				//System.out.println(controller.applyDeadband(controller.getLeftStickY()));
+				shooterTiltMotor.set(controller.applyDeadband(controller.getLeftStickY())/4);
+			}
+			else
+			{
+				shooterTiltMotor.set(0.0);
+			}
+		}
+		
+		else if(getAngle() > 3.1)
+		{
+			if(controller.applyDeadband(controller.getLeftStickY()) > 0)
+			{
+				//System.out.println(controller.applyDeadband(controller.getLeftStickY()));
+				shooterTiltMotor.set(controller.applyDeadband(controller.getLeftStickY())/4);
+			}
+			else
+			{
+				shooterTiltMotor.set(0.0);
+			}			
+		}
+		
+		else
+		{
+			//shooterTiltMotor.set(0.0);
+			shooterTiltMotor.set(controller.applyDeadband(controller.getLeftStickY())/4);
+		}
+		
+		//shooterTiltMotor.set(controller.applyDeadband(controller.getLeftStickY())/2);
 	}
 	
 	public void shootBall(Mode mode)
@@ -65,7 +110,6 @@ public class Shooter extends RobotElement
 				{
 					case 0:
 						shooterMotor1.set(1.0);
-						shooterMotor2.set(1.0);
 						System.out.println("shooter motors started");
 						shootCounter++;
 						shootTimer.waitFor(1.5);
@@ -93,9 +137,10 @@ public class Shooter extends RobotElement
 		{
 			if(controller.getButtonA() && mode == Mode.teleop)
 			{
-				if(ballLoaded.get())
+				if(!ballLoaded.get())		//TODO add limit switch to robot
 				{
 					shooting = true;
+					System.out.println("Shooting Ball");
 				}
 			}
 		}
@@ -106,31 +151,61 @@ public class Shooter extends RobotElement
 		if(controller.getButtonB() && ballLoaded.get())
 		{
 			shooterMotor1.set(-0.5);
-			shooterMotor2.set(-0.5);
 			shooterTriggerMotor.set(0.25);
 		}
 		else
 		{
 			shooterMotor1.set(0.0);
-			shooterMotor2.set(0.0);
 			shooterTriggerMotor.set(0.0);
 		}
 	}
 	
 	public double getAngle()
 	{
-		return shooterTiltAngle.get();
+		return ((shooterTiltAngle.get()*-100)+50)+1.2;
 	}
 	
 	public void teleop()
 	{		
 		shootBall(Mode.teleop);
-		tiltShooter();
+		
+		if(!tilting)
+		{
+			tiltShooter();
+		}
 		
 		if(!shooting)
 		{
 			intake();
 		}
+		
+		/*
+		if(controller.getButtonX())
+		{
+			if(!tilting)
+			{
+				gotoShootAngle();
+				tilting = true;
+			}
+		}
+		*/
+	}
+	
+	public void gotoShootAngle()
+	{
+		if(getAngle() < 1.5)
+		{
+			shooterTiltMotor.set(-0.3);
+			while(getAngle() < 1.5) {}
+			shooterTiltMotor.set(0.0);
+		}
+		else if(getAngle() > 1.5)
+		{
+			shooterTiltMotor.set(0.3);
+			while(getAngle() > 1.5) {}
+			shooterTiltMotor.set(0.0);
+		}
+		tilting = false;
 	}
 	
 	public void autonomous()

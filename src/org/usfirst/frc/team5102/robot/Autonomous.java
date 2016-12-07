@@ -30,25 +30,7 @@ public class Autonomous
 		
 		if(!timer.isRunning())
 		{
-			switch(autonCounter)
-			{
-				case 0:		//first command in autonomous series
-					leftCurrentSpeed = 1.0;
-					rightCurrentSpeed = 1.0;
-					System.out.println("motors started");
-					autonCounter++;
-					timer.waitFor(5.0);	//waits for the specified amount of time (seconds), then starts the next command.
-					break;
-				case 1:		//second command in autonomous series
-					leftCurrentSpeed = 0.0;
-					rightCurrentSpeed = 0.0;
-					System.out.println("motors stopped");
-					autonCounter++;
-					break;
-				case 2:		//third command in autonomous series
-					
-					break;
-			}
+			
 		}
 		else
 		{
@@ -56,29 +38,52 @@ public class Autonomous
 		}
 	}
 	
+	public void autonomous2Init()
+	{
+		new Thread()
+		{
+			public void run()
+			{
+				System.out.println("running thread");
+				
+				double[] targets = Robot.grip.getNumberArray("centerX", new double[0]);
+		        
+		        if(targets.length > 0)
+		        {
+		        	double currentX = targets[0];
+		        	
+		        	while(!(currentX > 280 && currentX < 300))
+		        	{
+		        		targets = Robot.grip.getNumberArray("centerX", new double[0]);
+		        		if(targets.length < 1)
+		        		{
+		        			break;
+		        		}
+		        		else
+		        		{
+		        			currentX = targets[0];
+		        			
+		        			if(currentX < 290)
+		        			{
+		        				Drive.robotDrive.arcadeDrive(0.0, .41);
+		        			}
+		        			else if(currentX > 290)
+		        			{
+		        				Drive.robotDrive.arcadeDrive(0.0, -.42);
+		        			}
+		        		}
+		        	}
+		        	Drive.robotDrive.arcadeDrive(0.0, 0.0);
+		        }
+			}
+		}.run();
+	}
+	
 	public void autonomous2()
 	{	
-		Drive.robotDrive.tankDrive(leftCurrentSpeed, rightCurrentSpeed);
+		//Drive.robotDrive.tankDrive(leftCurrentSpeed, rightCurrentSpeed);
 		
-		if(!timer.isRunning())
-		{
-			switch(autonCounter)
-			{
-				case 0:
-					
-					break;
-				case 1:
-					
-					break;
-				case 2:
-					
-					break;
-			}
-		}
-		else
-		{
-			timer.update();
-		}
+		
 	}
 	
 	public void autonomous3()
