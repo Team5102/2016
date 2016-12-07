@@ -7,13 +7,12 @@ import edu.wpi.first.wpilibj.Solenoid;
 
 public class Suspension
 {
-	Solenoid leftSuspension, rightSuspension;
+	Solenoid suspension;
 	CustomTimer suspensionTimer;
 	
 	Suspension()
 	{
-		leftSuspension = new Solenoid(RobotMap.leftSuspension);
-		rightSuspension = new Solenoid(RobotMap.rightSuspension);
+		suspension = new Solenoid(RobotMap.suspension);
 		
 		suspensionTimer = new CustomTimer();
 	}
@@ -22,17 +21,15 @@ public class Suspension
 	{
 		if(!suspensionTimer.isRunning())
 		{
-			if(leftSuspension.get())
+			if(suspension.get())
 			{
-				leftSuspension.set(false);
-				rightSuspension.set(false);
+				suspension.set(false);
 				
 				suspensionTimer.waitFor(10.0);
 			}
 			else
 			{
-				leftSuspension.set(true);
-				rightSuspension.set(true);
+				suspension.set(true);
 				
 				suspensionTimer.waitFor(1.0);
 			}

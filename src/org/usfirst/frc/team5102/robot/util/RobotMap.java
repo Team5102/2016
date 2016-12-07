@@ -15,8 +15,8 @@ public class RobotMap
 	public static final int shooterMotor1 = 14;
 	public static final int shooterMotor2 = 15;
 	public static final int shooterTriggerMotor = 16;
-	//Scissor Lift
-	public static final int scissorLiftMotor = 7;
+	//Climber
+	public static final int climberLiftMotor = 7;
 	//Arm
 	public static final int armMotor = 17;
 	public static final int rollerMotor = 18;
@@ -25,10 +25,11 @@ public class RobotMap
 	//Shifter
 	public static final int shifterSolenoid = 0;
 	//Scissor Lift
-	public static final int liftLock = 1;
+	public static final int liftLock = 2;
 	//Suspension
-	public static final int leftSuspension = 2;
-	public static final int rightSuspension = 3;
+	public static final int gunPosition = 3;
+	public static final int gunTrigger = 4;
+	public static final int suspension = 1;
 	
 	//====================I/O====================
 	//Shooter
@@ -40,7 +41,7 @@ public class RobotMap
 	//Arm
 	public static final int armLimit = 3;
 	//Pneumatics
-	public static final int storedPressureSensor = 1;
+	public static final int suspensionPressureSensor = 1;
 	public static final int workingPressureSensor = 2;
 	
 }

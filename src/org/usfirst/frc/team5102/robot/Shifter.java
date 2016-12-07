@@ -29,7 +29,7 @@ public class Shifter extends RobotElement
 		shifter = new Solenoid(RobotMap.shifterSolenoid);
 		shifter.set(true);
 		
-		storedPressureSensor = new AnalogInput(RobotMap.storedPressureSensor);
+		storedPressureSensor = new AnalogInput(RobotMap.suspensionPressureSensor);
 		workingPressureSensor = new AnalogInput(RobotMap.workingPressureSensor);
 		
 		df = new DecimalFormat("###.##");
@@ -37,12 +37,12 @@ public class Shifter extends RobotElement
 	
 	public void shiftGears(Gear gear)
 	{
-		if(gear == Gear.low)
+		if(gear == Gear.high)
 		{
 			shifter.set(true);
 		}
 		
-		else if(gear == Gear.high)
+		else if(gear == Gear.low)
 		{
 			shifter.set(false);
 		}
@@ -52,16 +52,16 @@ public class Shifter extends RobotElement
 	{
 		if(shifter.get())
 		{
-			return Gear.low;
+			return Gear.high;
 		}
 		else if(!shifter.get())
 		{
-			return Gear.high;
+			return Gear.low;
 		}
 		return Gear.low;
 	}
 	
-	public double getStoredPSI()
+	public double getSuspensionPSI()
 	{
 		return Double.parseDouble((df.format(250*(storedPressureSensor.getVoltage()/ControllerPower.getVoltage5V())-25)));
 	}

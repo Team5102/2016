@@ -4,7 +4,12 @@ package org.usfirst.frc.team5102.robot;
 import org.usfirst.frc.team5102.robot.Drive.DriveMode;
 import org.usfirst.frc.team5102.robot.RobotElement.Mode;
 import org.usfirst.frc.team5102.robot.Shifter.Gear;
+import org.usfirst.frc.team5102.robot.Shooter.ShootMode;
 
+import com.ni.vision.NIVision;
+import com.ni.vision.NIVision.Image;
+
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -15,30 +20,40 @@ public class Robot extends IterativeRobot
 	private Drive drive;
 	private Shooter shooter;
 	private Autonomous auton;
-	private ScissorLift lift;
+	private Climber climber;
 	private Suspension suspension;
 	
-	private SendableChooser autoChooser;
+	private SendableChooser autoChooser, shootModeChooser;
 	private int autonMode;
 	
-	//int session;
-    //Image frame;
+	int session;
+    Image frame;
     
     NetworkTable table;
+    
+    static Mode robotMode;
 	
     public void robotInit()				//runs when robot is turned on
     {
     	drive = new Drive();
     	shooter = new Shooter();
     	auton = new Autonomous();
-    	lift = new ScissorLift();
+    	climber = new Climber();
     	suspension = new Suspension();
     	
     	autoChooser = new SendableChooser();
-    	autoChooser.addDefault("Auton 1", 1);
-    	autoChooser.addObject("Auton 2", 2);
-    	autoChooser.addObject("Auton 3", 3);
+    	autoChooser.addDefault("Auton Disabled", 0);
+    	autoChooser.addObject("FW 6s, 55%", 1);
+    	autoChooser.addObject("----------", 2);
+    	autoChooser.addObject("----------", 3);
     	SmartDashboard.putData("Autonomous Selector", autoChooser);
+    	
+    	shootModeChooser = new SendableChooser();
+    	shootModeChooser.addDefault("Auto Shoot", 1);
+    	shootModeChooser.addObject("Manual Shoot", 2);
+    	SmartDashboard.putData("Shoot Mode Selector", shootModeChooser);
+    	
+    	robotMode = Mode.disabled;
     	
     	//frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
 
@@ -50,7 +65,7 @@ public class Robot extends IterativeRobot
     
     public void disabledInit()
     {
-    	//drive.launchpad.light(true);
+    	robotMode = Mode.disabled;
     }
     
     public void disabledPeriodic()
@@ -72,6 +87,8 @@ public class Robot extends IterativeRobot
 
     public void autonomousInit()		//runs when autonomous mode is enabled
     {
+    	robotMode = Mode.auton;
+    	
     	auton.autonInit();
     	autonMode = (int) autoChooser.getSelected();
     }
@@ -101,7 +118,7 @@ public class Robot extends IterativeRobot
 
     public void teleopInit()			//runs when teleop mode is enabled
     {
-    	drive.launchpad.light(false);
+    	robotMode = Mode.teleop;
     }
     
     public void teleopPeriodic()		//runs periodically during teleop mode
@@ -112,17 +129,16 @@ public class Robot extends IterativeRobot
     	
         drive.teleop();
         shooter.teleop();
-        lift.teleop();
+        climber.teleop();
         suspension.teleop();
+        
         drive.controller.updateRumbleTimer();
         shooter.controller.updateRumbleTimer();
-        
-        //System.out.println(shooter.shooterMotor1.getEncVelocity());
     }
     
     public void testInit()				//runs when test mode is enabled
     {
-    	
+    	robotMode = Mode.test;
     }
     
     public void testPeriodic()			//runs periodically during test mode
@@ -132,13 +148,13 @@ public class Robot extends IterativeRobot
     
     public void updateSmartDashboard(Mode mode)
 	{
-		//SmartDashboard.putNumber("Left Drive Speed", Drive.leftDriveMotor.getSpeed());
-		//SmartDashboard.putNumber("Right Drive Speed", (-Drive.rightDriveMotor.getSpeed()));
+		SmartDashboard.putNumber("Left Drive Speed", drive.leftDriveMotors.get());
+		SmartDashboard.putNumber("Right Drive Speed", (-drive.rightDriveMotors.get()));
 		
-		SmartDashboard.putNumber("Stored Air Pressure", Drive.shifter.getStoredPSI());
+		SmartDashboard.putNumber("Suspension Air Pressure", Drive.shifter.getSuspensionPSI());
 		SmartDashboard.putNumber("Working Air Pressure", Drive.shifter.getWorkingPSI());
 		
-		SmartDashboard.putNumber("Stored PSI", Drive.shifter.getStoredPSI());
+		SmartDashboard.putNumber("Suspension PSI", Drive.shifter.getSuspensionPSI());
 		SmartDashboard.putNumber("Working PSI", Drive.shifter.getWorkingPSI());
 		
 		SmartDashboard.putNumber("Shooter Angle", shooter.getAngle());
@@ -164,11 +180,25 @@ public class Robot extends IterativeRobot
 		{
 			SmartDashboard.putString("Gear", "High");
 		}
+		
+		switch((int) shootModeChooser.getSelected())
+		{
+			case 1:
+				shooter.shootMode = ShootMode.Automatic;
+				break;
+			case 2:
+				shooter.shootMode = ShootMode.Manual;
+		}
 	}
     
     public void updateCamera()
     {
-    	//NIVision.IMAQdxGrab(session, frame, 1);
-        //CameraServer.getInstance().setImage(frame);
+    	NIVision.IMAQdxGrab(session, frame, 1);
+        CameraServer.getInstance().setImage(frame);
+    }
+    
+    public static Mode getRobotMode()
+    {
+    	return robotMode;
     }
 }
