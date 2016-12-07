@@ -1,11 +1,20 @@
 
 package org.usfirst.frc.team5102.robot;
 
+import java.io.IOException;
+
 import org.usfirst.frc.team5102.robot.Drive.DriveMode;
 import org.usfirst.frc.team5102.robot.RobotElement.Mode;
 import org.usfirst.frc.team5102.robot.Shifter.Gear;
 
+import com.ni.vision.NIVision;
+import com.ni.vision.NIVision.DrawMode;
+import com.ni.vision.NIVision.Image;
+import com.ni.vision.NIVision.ShapeMode;
+
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -19,6 +28,13 @@ public class Robot extends IterativeRobot
 	private SendableChooser autoChooser;
 	private int autonMode;
 		
+	//CameraServer server;
+	
+	int session;
+    Image frame;
+    
+    static NetworkTable grip;
+	
     public void robotInit()				//runs when robot is turned on
     {
     	drive = new Drive();
@@ -31,11 +47,35 @@ public class Robot extends IterativeRobot
     	autoChooser.addObject("Auton 2", 2);
     	autoChooser.addObject("Auton 3", 3);
     	SmartDashboard.putData("Autonomous Selector", autoChooser);
+    	
+    	grip = NetworkTable.getTable("GRIP/targets");
+    	
+    	/*
+    	server = CameraServer.getInstance();
+        server.setQuality(50);
+        server.startAutomaticCapture("cam0");
+        */
+    	/*
+    	frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+        session = NIVision.IMAQdxOpenCamera("cam0",
+                NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+        NIVision.IMAQdxConfigureGrab(session);
+        
+        NIVision.IMAQdxStartAcquisition(session);
+        */
+    	/*
+    	try {
+            new ProcessBuilder("/home/lvuser/grip").inheritIO().start();
+        } catch (IOException e) {
+        	System.out.println("it didn't work");
+            e.printStackTrace();
+        }
+        */
     }
     
     public void disabledInit()
     {
-    	
+    	drive.aiming = false;
     }
     
     public void disabledPeriodic()
@@ -45,12 +85,44 @@ public class Robot extends IterativeRobot
     	
     	drive.controller.updateRumbleTimer();
         shooter.controller.updateRumbleTimer();
+        
+        updateCamera();
+        
+        //System.out.println(drive.controller.getPOV());
+        
+        double[] targets = grip.getNumberArray("centerX", new double[0]);
+        
+        if(targets.length > 0)
+        {
+        	System.out.println("Got contour with centerX=" + targets[0]);
+        }
+        /*
+        for (double centerX : grip.getNumberArray("targets/centerX", new double[0]))
+    	{
+            System.out.println("Got contour with centerX=" + centerX);
+    	}
+    	*/
     }
 
     public void autonomousInit()		//runs when autonomous mode is enabled
     {
     	auton.autonInit();
     	autonMode = (int) autoChooser.getSelected();
+    	
+    	switch(autonMode)
+    	{
+    		case 1:
+    			
+    			break;
+    		case 2:
+    			auton.autonomous2Init();
+    			break;
+    		case 3:
+    			
+    			break;
+    	}
+    	//System.out.println("auton init");
+    	//auton.autonomous2Init();
     }
     
     public void autonomousPeriodic()	//runs periodically during autonomous mode
@@ -72,6 +144,13 @@ public class Robot extends IterativeRobot
     			auton.autonomous3();
     			break;
     	}
+    	
+    	double[] targets = grip.getNumberArray("centerX", new double[0]);
+        
+        if(targets.length > 0)
+        {
+        	//System.out.println("Got contour with centerX=" + targets[0]);
+        }
     }
 
     public void teleopInit()			//runs when teleop mode is enabled
@@ -88,6 +167,16 @@ public class Robot extends IterativeRobot
         suspension.teleop();
         drive.controller.updateRumbleTimer();
         shooter.controller.updateRumbleTimer();
+        
+        updateCamera();
+        
+        double[] targets = grip.getNumberArray("centerX", new double[0]);
+        double[] targetsY = grip.getNumberArray("centerY", new double[0]);
+        
+        if(targets.length > 0)
+        {
+        	System.out.println("Got contour with " + targets[0] + ", " + targetsY[0]);
+        }
     }
     
     public void testInit()				//runs when test mode is enabled
@@ -132,4 +221,22 @@ public class Robot extends IterativeRobot
 			SmartDashboard.putString("Gear", "High");
 		}
 	}
+    
+    public void updateCamera()
+    {
+    	/*
+    	NIVision.Rect rect = new NIVision.Rect(290, 275, 100, 100);
+    	NIVision.Rect rect2 = new NIVision.Rect(75, 410, 60, 60);
+    	    	
+    	
+    	NIVision.IMAQdxGrab(session, frame, 1);
+        
+    	NIVision.imaqDrawShapeOnImage(frame, frame, rect,
+                DrawMode.DRAW_VALUE, ShapeMode.SHAPE_OVAL, 0.0f);
+    	NIVision.imaqDrawShapeOnImage(frame, frame, rect2,
+                DrawMode.DRAW_VALUE, ShapeMode.SHAPE_OVAL, 0.0f);
+    	
+        CameraServer.getInstance().setImage(frame);
+        */
+    }
 }
