@@ -1,5 +1,6 @@
 package org.usfirst.frc.team5102.robot;
 
+import org.usfirst.frc.team5102.robot.Aim.AimState;
 import org.usfirst.frc.team5102.robot.RobotElement.Mode;
 import org.usfirst.frc.team5102.robot.util.CustomTimer;
 import org.usfirst.frc.team5102.robot.util.RobotMap;
@@ -78,7 +79,8 @@ public class Shooter extends RobotElement
 			}
 		}
 		
-		else if(getAngle() > 3.1)
+		else if(getAngle() > 3.1
+				)
 		{
 			if(controller.applyDeadband(controller.getLeftStickY()) > 0)
 			{
@@ -122,6 +124,7 @@ public class Shooter extends RobotElement
 						break;
 					case 2:
 						setDefault();
+						Aim.state = AimState.notAiming;
 						shootCounter = 0;
 						shooting = false;
 						break;

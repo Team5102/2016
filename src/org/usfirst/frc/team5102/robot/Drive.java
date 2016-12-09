@@ -13,7 +13,7 @@ public class Drive extends RobotElement
 	
 	static RobotDrive robotDrive;
 	public static Shifter shifter;
-	boolean aiming;
+	static boolean aiming;
 	
 	int counter = 0;
 	
@@ -25,7 +25,7 @@ public class Drive extends RobotElement
 	
 	static DriveMode driveMode;
 	
-	Thread aim;
+	static Thread aim;
 	
 	Drive()
 	{
@@ -117,235 +117,6 @@ public class Drive extends RobotElement
 			robotDrive.arcadeDrive(0, 0);
 		}
 		*/
-		
-		if(!aiming)
-		{
-			aim = new Thread()
-			{
-				public void run()
-				{
-					System.out.println("running thread");
-					aiming = true;
-					
-					boolean running = aimX();
-					/*
-					if(running)
-					{
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-						running = aimX();
-					}
-					*/
-					if(running)
-					{
-						running = aimY();
-					}
-					
-					if(running)
-					{
-						try {
-							Thread.sleep(300);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-						running = aimX();
-					}
-					
-					if(running)
-					{
-						try {
-							Thread.sleep(500);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-						
-						running = aimX();
-					}
-			        	
-			        System.out.println("aiming false");
-			        aiming = false;
-			        
-			        if(running)
-					{
-			        	Shooter.shooting = true;
-					}
-			        
-				}
-			};
-			aim.run();
-		}
-	}
-	
-	public boolean aimX()
-	{
-		double[] targets = Robot.grip.getNumberArray("centerX", new double[0]);
-        
-        if(targets.length > 0)
-        {
-        	double currentX = targets[0];
-        	
-        	while(!(currentX > 305 && currentX < 345))
-        	{
-        		targets = Robot.grip.getNumberArray("centerX", new double[0]);
-        		if(targets.length < 1)
-        		{
-        			return false;
-        		}
-        		else
-        		{
-        			currentX = targets[0];
-        			
-        			if(currentX < 325)
-        			{
-        				Drive.robotDrive.tankDrive(-0.3, 0.36);
-        				//Drive.robotDrive.arcadeDrive(0.0, .41);
-        			}
-        			else if(currentX > 325)
-        			{
-        				Drive.robotDrive.tankDrive(0.3, -0.38);
-        				//Drive.robotDrive.arcadeDrive(0.0, -.42);
-        			}
-        		}
-        		
-        		if(!aiming)
-        		{
-        			System.out.println("thread broken");
-        			
-        			return false;
-        		}
-        	}
-        	
-        	try {
-				Thread.sleep(500);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-        	
-        	while(!(currentX > 320 && currentX < 330))
-        	{
-        		targets = Robot.grip.getNumberArray("centerX", new double[0]);
-        		if(targets.length < 1)
-        		{
-        			return false;
-        		}
-        		else
-        		{
-        			currentX = targets[0];
-        			
-        			if(currentX < 325)
-        			{
-        				Drive.robotDrive.tankDrive(-0.3, 0.36);
-        				
-        				try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-        				
-        				Drive.robotDrive.tankDrive(0.0, 0.0);
-        				
-        				try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-        				
-        				//Drive.robotDrive.arcadeDrive(0.0, .41);
-        			}
-        			else if(currentX > 325)
-        			{
-        				Drive.robotDrive.tankDrive(0.3, -0.38);
-        				
-        				try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-        				
-        				Drive.robotDrive.tankDrive(0.0, 0.0);
-        				
-        				try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-        				
-        				//Drive.robotDrive.arcadeDrive(0.0, -.42);
-        			}
-        		}
-        		
-        		if(!aiming)
-        		{
-        			System.out.println("thread broken");
-        			
-        			return false;
-        		}
-        	}
-        	
-        	Drive.robotDrive.arcadeDrive(0.0, 0.0);
-        	
-        }
-        
-        return true;
-	}
-	
-	public boolean aimY()
-	{
-		double[] targets = Robot.grip.getNumberArray("centerY", new double[0]);
-        
-        if(targets.length > 0)
-        {
-        	double currentY = targets[0];
-        	
-        	while(!(currentY > 200 && currentY < 220))
-        	{
-        		targets = Robot.grip.getNumberArray("centerY", new double[0]);
-        		if(targets.length < 1)
-        		{
-        			return false;
-        		}
-        		else
-        		{
-        			currentY = targets[0];
-        			
-        			if(currentY < 210)
-        			{
-        				Drive.robotDrive.tankDrive(-0.4, -0.4);
-        				//Drive.robotDrive.arcadeDrive(0.0, .41);
-        			}
-        			else if(currentY > 210)
-        			{
-        				Drive.robotDrive.tankDrive(0.4, 0.4);
-        				//Drive.robotDrive.arcadeDrive(0.0, -.42);
-        			}
-        		}
-        		
-        		if(!aiming)
-        		{
-        			System.out.println("thread broken");
-        			
-        			return false;
-        		}
-        	}
-        	
-        	Drive.robotDrive.arcadeDrive(0.0, 0.0);
-        	
-        }
-        
-        return true;
 	}
 	
 	public void teleop()
@@ -353,25 +124,25 @@ public class Drive extends RobotElement
 		//==========Drive==========
 		
 		setDriveMode();
-		
-		//System.out.println((controller.getRightStickX()));
-		
+				
 		if(!aiming)
 		{
 			//if(controller.applyDeadband(controller.getLeftStickY()) != 0 || controller.applyDeadband(controller.getRightStickX()) != 0)
 			{
 				drive();
 			}
-			
 		}
 		
 		if(controller.getButtonY())
 		{
 			if(!aiming)
 			{
-				aim();
+				aim = new Aim();
+				aim.start();					//start aim procedure
 			}
 		}
+		
+		//System.out.println(aim.isAlive());
 		
 		
 		//==========Shifter==========

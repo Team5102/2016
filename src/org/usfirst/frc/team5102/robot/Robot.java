@@ -75,6 +75,7 @@ public class Robot extends IterativeRobot
     
     public void disabledInit()
     {
+    	Drive.aim.interrupt();
     	drive.aiming = false;
     }
     
@@ -94,7 +95,7 @@ public class Robot extends IterativeRobot
         
         if(targets.length > 0)
         {
-        	System.out.println("Got contour with centerX=" + targets[0]);
+        	//System.out.println("Got contour with centerX=" + targets[0]);
         }
         /*
         for (double centerX : grip.getNumberArray("targets/centerX", new double[0]))
@@ -169,14 +170,6 @@ public class Robot extends IterativeRobot
         shooter.controller.updateRumbleTimer();
         
         updateCamera();
-        
-        double[] targets = grip.getNumberArray("centerX", new double[0]);
-        double[] targetsY = grip.getNumberArray("centerY", new double[0]);
-        
-        if(targets.length > 0)
-        {
-        	System.out.println("Got contour with " + targets[0] + ", " + targetsY[0]);
-        }
     }
     
     public void testInit()				//runs when test mode is enabled
@@ -199,6 +192,26 @@ public class Robot extends IterativeRobot
 		
 		SmartDashboard.putNumber("Shooter Angle", shooter.getAngle());
 		
+		double[] targetsX = grip.getNumberArray("centerX", new double[0]);
+        double[] targetsY = grip.getNumberArray("centerY", new double[0]);
+        
+        if(targetsX.length > 0)
+        {
+        	//System.out.println("Got contour with " + targetsX[0] + ", " + targetsY[0]);
+        	
+        	try
+        	{
+        		SmartDashboard.putNumber("Target X", targetsX[0]);
+        		SmartDashboard.putNumber("Target Y", targetsY[0]);
+        	}
+        	catch(ArrayIndexOutOfBoundsException e) {}
+        }
+        else
+        {
+        	SmartDashboard.putNumber("Target X", 0);
+        	SmartDashboard.putNumber("Target Y", 0);
+        }
+		
 		if(mode == Mode.auton)
 		{
 			SmartDashboard.putString("DriveMode", "AUTONOMOUS");
@@ -219,6 +232,26 @@ public class Robot extends IterativeRobot
 		else if(Drive.shifter.getCurrentGear() == Gear.high)
 		{
 			SmartDashboard.putString("Gear", "High");
+		}
+		
+		switch(Aim.state)
+		{
+			case notAiming:
+				SmartDashboard.putString("AimState", "Not Aiming");
+				break;
+			case aimX:
+				SmartDashboard.putString("AimState", "Aiming X");
+				break;
+			case aimY:
+				SmartDashboard.putString("AimState", "Aiming Y");
+				break;
+			case shoot:
+				SmartDashboard.putString("AimState", "Shooting");
+		}
+		
+		if(mode == Mode.disabled)
+		{
+			SmartDashboard.putString("AimState", "Not Aiming");
 		}
 	}
     
