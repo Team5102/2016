@@ -45,7 +45,7 @@ public class Autonomous
 			public void run()
 			{
 				System.out.println("running thread");
-				
+				/*
 				double[] targets = Robot.grip.getNumberArray("centerX", new double[0]);
 		        
 		        if(targets.length > 0)
@@ -75,6 +75,7 @@ public class Autonomous
 		        	}
 		        	Drive.robotDrive.arcadeDrive(0.0, 0.0);
 		        }
+		        */
 			}
 		}.run();
 	}

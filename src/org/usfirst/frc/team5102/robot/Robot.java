@@ -6,6 +6,7 @@ import java.io.IOException;
 import org.usfirst.frc.team5102.robot.Drive.DriveMode;
 import org.usfirst.frc.team5102.robot.RobotElement.Mode;
 import org.usfirst.frc.team5102.robot.Shifter.Gear;
+import org.usfirst.frc.team5102.robot.util.Vision;
 
 import com.ni.vision.NIVision;
 import com.ni.vision.NIVision.DrawMode;
@@ -23,7 +24,6 @@ public class Robot extends IterativeRobot
 	private Drive drive;
 	private Shooter shooter;
 	private Autonomous auton;
-	private Suspension suspension;
 	
 	private SendableChooser autoChooser;
 	private int autonMode;
@@ -32,15 +32,12 @@ public class Robot extends IterativeRobot
 	
 	int session;
     Image frame;
-    
-    static NetworkTable grip;
 	
     public void robotInit()				//runs when robot is turned on
     {
     	drive = new Drive();
     	shooter = new Shooter();
     	auton = new Autonomous();
-    	suspension = new Suspension();
     	
     	autoChooser = new SendableChooser();
     	autoChooser.addDefault("Auton 1", 1);
@@ -48,7 +45,7 @@ public class Robot extends IterativeRobot
     	autoChooser.addObject("Auton 3", 3);
     	SmartDashboard.putData("Autonomous Selector", autoChooser);
     	
-    	grip = NetworkTable.getTable("GRIP/targets");
+    	Vision.init();
     	
     	/*
     	server = CameraServer.getInstance();
@@ -91,18 +88,6 @@ public class Robot extends IterativeRobot
         
         //System.out.println(drive.controller.getPOV());
         
-        double[] targets = grip.getNumberArray("centerX", new double[0]);
-        
-        if(targets.length > 0)
-        {
-        	//System.out.println("Got contour with centerX=" + targets[0]);
-        }
-        /*
-        for (double centerX : grip.getNumberArray("targets/centerX", new double[0]))
-    	{
-            System.out.println("Got contour with centerX=" + centerX);
-    	}
-    	*/
     }
 
     public void autonomousInit()		//runs when autonomous mode is enabled
@@ -145,13 +130,6 @@ public class Robot extends IterativeRobot
     			auton.autonomous3();
     			break;
     	}
-    	
-    	double[] targets = grip.getNumberArray("centerX", new double[0]);
-        
-        if(targets.length > 0)
-        {
-        	//System.out.println("Got contour with centerX=" + targets[0]);
-        }
     }
 
     public void teleopInit()			//runs when teleop mode is enabled
@@ -165,7 +143,6 @@ public class Robot extends IterativeRobot
     	
         drive.teleop();
         shooter.teleop();
-        suspension.teleop();
         drive.controller.updateRumbleTimer();
         shooter.controller.updateRumbleTimer();
         
@@ -179,7 +156,10 @@ public class Robot extends IterativeRobot
     
     public void testPeriodic()			//runs periodically during test mode
     {
-    
+    	drive.teleop();
+    	shooter.teleop();
+    	
+    	System.out.println(Vision.getTargetX());
     }
     
     public void updateSmartDashboard(Mode mode)
@@ -192,25 +172,8 @@ public class Robot extends IterativeRobot
 		
 		SmartDashboard.putNumber("Shooter Angle", shooter.getAngle());
 		
-		double[] targetsX = grip.getNumberArray("centerX", new double[0]);
-        double[] targetsY = grip.getNumberArray("centerY", new double[0]);
-        
-        if(targetsX.length > 0)
-        {
-        	//System.out.println("Got contour with " + targetsX[0] + ", " + targetsY[0]);
-        	
-        	try
-        	{
-        		SmartDashboard.putNumber("Target X", targetsX[0]);
-        		SmartDashboard.putNumber("Target Y", targetsY[0]);
-        	}
-        	catch(ArrayIndexOutOfBoundsException e) {}
-        }
-        else
-        {
-        	SmartDashboard.putNumber("Target X", 0);
-        	SmartDashboard.putNumber("Target Y", 0);
-        }
+		SmartDashboard.putNumber("Target X", Vision.getTargetX());
+		SmartDashboard.putNumber("Target Y", Vision.getTargetY());
 		
 		if(mode == Mode.auton)
 		{

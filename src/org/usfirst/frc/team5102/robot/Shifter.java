@@ -35,6 +35,10 @@ public class Shifter extends RobotElement
 		df = new DecimalFormat("###.##");
 	}
 	
+	/**
+	 * 
+	 * @param gear	Gear to be shifted.
+	 */
 	public void shiftGears(Gear gear)
 	{
 		if(gear == Gear.low)
@@ -48,6 +52,9 @@ public class Shifter extends RobotElement
 		}
 	}
 	
+	/**
+	 * @return	An enumerated type denoting the current gear state. 
+	 */
 	public Gear getCurrentGear()
 	{
 		if(shifter.get())

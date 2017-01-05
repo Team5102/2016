@@ -2,7 +2,13 @@ package org.usfirst.frc.team5102.robot;
 
 import org.usfirst.frc.team5102.robot.util.Vision;
 
-public class Aim extends Thread
+import edu.wpi.first.wpilibj.PIDController;
+import edu.wpi.first.wpilibj.PIDOutput;
+import edu.wpi.first.wpilibj.PIDSource;
+import edu.wpi.first.wpilibj.PIDSourceType;
+import edu.wpi.first.wpilibj.livewindow.LiveWindow;
+
+public class Aim_PID extends Thread implements PIDSource, PIDOutput
 {
 	static int targetX = 335;
 	static int targetY = 230;
@@ -24,6 +30,20 @@ public class Aim extends Thread
 	}
 	
 	static AimState state = AimState.notAiming;
+	
+	PIDController aimPID;
+	
+	public Aim_PID()
+	{
+		aimPID = new PIDController(0.05, 0.005, 0.1, this, this);
+		aimPID.setSetpoint(targetX);
+		aimPID.setOutputRange(-0.38, 0.38);
+		aimPID.setAbsoluteTolerance(5);
+		
+		LiveWindow.addActuator("Aim", "Aim PID", aimPID);
+		
+		aimPID.disable();
+	}
 	
 	public void run()
 	{
@@ -56,6 +76,7 @@ public class Aim extends Thread
         	
         System.out.println("aiming false");
         Drive.aiming = false;
+        aimPID.disable();
         
         if(running)									//determines if thread was canceled (target lost)
 		{
@@ -75,71 +96,30 @@ public class Aim extends Thread
         
         if(Vision.targetFound())														//determines if target is in view
         {
-        	while(!(currentX > (targetX-20) && currentX < (targetX+20)))
+        	int i = 0;
+        	
+        	aimPID.enable();
+        	while(true)
         	{
         		if(Thread.currentThread().isInterrupted()) {return false;}
         	
-        		if(!Vision.targetFound())												//determines if target is in view
+        		if(!Vision.targetFound()) {return false;}
+        		
+        		if(aimPID.onTarget())
         		{
-        			return false;													//cancels if no target is found
+        			i++;
         		}
         		else
         		{
-        			currentX = Vision.getTargetX();
-        			
-        			if(currentX < targetX)
-        			{
-        				Drive.robotDrive.tankDrive(-0.25-MPM, 0.36+MPM);
-        			}
-        			else if(currentX > targetX)
-        			{
-        				Drive.robotDrive.tankDrive(0.25+MPM, -0.38-MPM);
-        			}
+        			i = 0;
         		}
-        	}
-        	if(mode == AimMode.fast)
-        	{
-        		Drive.robotDrive.arcadeDrive(0.0, 0.0);
         		
-        		return true;
-        	}
-        	
-        	pause(500);
-        	
-        	while(!(currentX > (targetX-5) && currentX < (targetX+5)))
-        	{
-        		if(Thread.currentThread().isInterrupted()) {return false;}
-        		
-        		if(!Vision.targetFound())												//determines if target is in view
+        		if(i > 50)
         		{
-        			return false;													//cancels if no target is found
-        		}
-        		else
-        		{
-        			currentX = Vision.getTargetX();
-        			
-        			if(currentX < targetX)
-        			{
-        				Drive.robotDrive.tankDrive(-0.3-MPM, 0.36+MPM);
-        				
-        				pause(125);
-        				
-        				Drive.robotDrive.tankDrive(0.0, 0.0);
-        				
-        				pause(100);
-           			}
-        			else if(currentX > targetX)
-        			{
-        				Drive.robotDrive.tankDrive(0.3+MPM, -0.38-MPM);
-        				
-        				pause(100);
-        				
-        				Drive.robotDrive.tankDrive(0.0, 0.0);
-        				
-        				pause(100);
-           			}
+        			break;
         		}
         	}
+        	aimPID.disable();
         	
         	Drive.robotDrive.arcadeDrive(0.0, 0.0);
         	
@@ -192,5 +172,36 @@ public class Aim extends Thread
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public void pidWrite(double output)
+	{
+		Drive.robotDrive.arcadeDrive(0, output);
+		
+	}
+
+	@Override
+	public void setPIDSourceType(PIDSourceType pidSource) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public PIDSourceType getPIDSourceType()
+	{
+		return PIDSourceType.kDisplacement;
+	}
+
+	@Override
+	public double pidGet()
+	{
+		double currentX = Vision.getTargetX();
+		
+		if(currentX == 0)
+		{
+			aimPID.disable();
+		}
+		return currentX;
 	}
 }

@@ -137,7 +137,7 @@ public class Drive extends RobotElement
 		{
 			if(!aiming)
 			{
-				aim = new Aim();
+				aim = new Aim_PID();
 				aim.start();					//start aim procedure
 			}
 		}
