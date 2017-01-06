@@ -9,6 +9,8 @@ public class Aim extends Thread
 	
 	double MPM = 0.00;									//motor power multiplier
 	
+    // TODO Consider using ints defined public and static?
+    // (e.g. "public static final int NOT_AIMING_STATE = 0; ")?
 	enum AimState
 	{
 		notAiming,
@@ -28,11 +30,16 @@ public class Aim extends Thread
 	public void run()
 	{
 		System.out.println("running thread");
-		Drive.aiming = true;
+	    // TODO Typically you want to use getter and setter methods to change
+        // local variables. 
+        Drive.aiming = true;
 		
 		state = AimState.aimX;
 		boolean running = aimX(AimMode.fast);					//aims X-axis
 		
+        // TODO: Use states rather than repeating these if conditions
+        // (e.g. aimY() should return a state and the following if should
+        // should check for that state. )
 		if(running)									//determines if thread was canceled (target lost)
 		{
 			running = aimY();						//drive forward/backward to aim Y-axis

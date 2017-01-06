@@ -2,8 +2,20 @@ package org.usfirst.frc.team5102.robot;
 
 import org.usfirst.frc.team5102.robot.util.CustomTimer;
 
+/**
+
+	TODO: Rename autonomous methods to be more indicative of their task.
+	(e.g. instead of "autonomous1" replace it with "shootSingleBallAuton")
+
+	Consider making a single interface where driver set variables are accesed
+	to reduce complexity? 
+*/
 public class Autonomous
 {
+	// TODO If you don't initialize local variables here, you usually want to
+	// make sure you init all of them in your constructors.
+	// Right now timeToWait and active aren't set.
+
 	int autonCounter;
 	double timeToWait;
 	boolean active;
@@ -40,6 +52,7 @@ public class Autonomous
 	
 	public void autonomous2Init()
 	{
+		// TODO: I don't think this is how you should be creating new threads.
 		new Thread()
 		{
 			public void run()
