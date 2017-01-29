@@ -8,6 +8,10 @@ import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.livewindow.LiveWindow;
 
+/**
+	TODO: Look at comment formatting and line lengths.
+	Can this not just be wrapped in with {@link Aim.java}?
+*/
 public class Aim_PID extends Thread implements PIDSource, PIDOutput
 {
 	static int targetX = 335;
@@ -31,6 +35,7 @@ public class Aim_PID extends Thread implements PIDSource, PIDOutput
 	
 	static AimState state = AimState.notAiming;
 	
+	// TODO: I think we may just want to implement PIDController? Or PidSubSystem?
 	PIDController aimPID;
 	
 	public Aim_PID()
