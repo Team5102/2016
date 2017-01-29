@@ -11,7 +11,7 @@ public class RobotElement
 	RobotElement(int port)
 	{
 		controller = new Xbox(port);
-		launchpad = new LaunchPad();
+		//launchpad = new LaunchPad();
 	}
 	
 	enum Mode

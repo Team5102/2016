@@ -40,6 +40,8 @@ public class Aim_PID extends Thread implements PIDSource, PIDOutput
 		aimPID.setOutputRange(-0.38, 0.38);
 		aimPID.setAbsoluteTolerance(5);
 		
+		aimPID.setInputRange(0, 700);
+		
 		LiveWindow.addActuator("Aim", "Aim PID", aimPID);
 		
 		aimPID.disable();
@@ -114,8 +116,10 @@ public class Aim_PID extends Thread implements PIDSource, PIDOutput
         			i = 0;
         		}
         		
-        		if(i > 50)
+        		if(i > 100)
         		{
+        			System.out.println("Target Found: " + Vision.getTargetX());
+        			
         			break;
         		}
         	}

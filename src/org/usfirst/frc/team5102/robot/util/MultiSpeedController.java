@@ -29,7 +29,6 @@ public class MultiSpeedController implements SpeedController
         }
     }
 
-    @Override
     public void set(double speed, byte syncGroup)
     {
         this.set(speed);

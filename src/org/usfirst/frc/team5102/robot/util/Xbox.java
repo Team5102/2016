@@ -1,7 +1,6 @@
 package org.usfirst.frc.team5102.robot.util;
 
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.Joystick.RumbleType;
 
 public class Xbox
 {
@@ -113,7 +112,7 @@ public class Xbox
 		
 		return 0.00;
 	}
-	
+	/*
 	public void rumble()
 	{
 		stick.setRumble(RumbleType.kLeftRumble, 1);
@@ -130,4 +129,5 @@ public class Xbox
 			stick.setRumble(RumbleType.kRightRumble, 0);
 		}
 	}
+	*/
 }

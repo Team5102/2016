@@ -2,12 +2,15 @@ package org.usfirst.frc.team5102.robot;
 
 import org.usfirst.frc.team5102.robot.util.RobotMap;
 
-import edu.wpi.first.wpilibj.CANTalon;
+import com.ctre.CANTalon;
+import com.ctre.CanTalonJNI;
+
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Arm extends RobotElement
 {
-	CANTalon armMotor, rollerMotor;
+	CANTalon armMotor;
+	CANTalon rollerMotor;
 	DigitalInput armLimit;
 	
 	Arm()

@@ -6,15 +6,15 @@ public class LaunchPad
 {
 	private Joystick launchpad;
 	
-	public LaunchPad()
+	public LaunchPad(int port)
 	{
-		launchpad = new Joystick(2);
+		launchpad = new Joystick(port);
 		//launchpad.setOutput(1, true);
 	}
 	
-	public void light(boolean state)
+	public void setOutput(int output, boolean state)
 	{
-		launchpad.setOutput(1, state);
+		launchpad.setOutput(output+1, state);
 	}
 	
 	public double getAxisAX()

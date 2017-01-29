@@ -1,21 +1,15 @@
 
 package org.usfirst.frc.team5102.robot;
 
-import java.io.IOException;
-
 import org.usfirst.frc.team5102.robot.Drive.DriveMode;
 import org.usfirst.frc.team5102.robot.RobotElement.Mode;
 import org.usfirst.frc.team5102.robot.Shifter.Gear;
+import org.usfirst.frc.team5102.robot.util.ArduinoComm;
+import org.usfirst.frc.team5102.robot.util.ArduinoComm.RobotMode;
+import org.usfirst.frc.team5102.robot.util.LaunchPad;
 import org.usfirst.frc.team5102.robot.util.Vision;
 
-import com.ni.vision.NIVision;
-import com.ni.vision.NIVision.DrawMode;
-import com.ni.vision.NIVision.Image;
-import com.ni.vision.NIVision.ShapeMode;
-
-import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
-import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -27,17 +21,25 @@ public class Robot extends IterativeRobot
 	
 	private SendableChooser autoChooser;
 	private int autonMode;
-		
+	
+	//private LaunchPad launchpad;
+	
+	private ArduinoComm arduinoComm;
+	
 	//CameraServer server;
 	
-	int session;
-    Image frame;
+	//int session;
+    //Image frame;
 	
     public void robotInit()				//runs when robot is turned on
     {
     	drive = new Drive();
     	shooter = new Shooter();
     	auton = new Autonomous();
+    	
+    	//launchpad = new LaunchPad(2);
+    	
+    	arduinoComm = new ArduinoComm(2);
     	
     	autoChooser = new SendableChooser();
     	autoChooser.addDefault("Auton 1", 1);
@@ -74,17 +76,18 @@ public class Robot extends IterativeRobot
     {
     	Drive.aim.interrupt();
     	drive.aiming = false;
+    	
+    	arduinoComm.setMode(RobotMode.disabled);
     }
     
     public void disabledPeriodic()
     {
     	updateSmartDashboard(Mode.disabled);
     	drive.setDriveMode();
-    	
-    	drive.controller.updateRumbleTimer();
-        shooter.controller.updateRumbleTimer();
         
         updateCamera();
+        
+        arduinoComm.updateAirMeter(drive.shifter.getWorkingPSI());
         
         //System.out.println(drive.controller.getPOV());
         
@@ -92,6 +95,8 @@ public class Robot extends IterativeRobot
 
     public void autonomousInit()		//runs when autonomous mode is enabled
     {
+    	arduinoComm.setMode(RobotMode.auton);
+    	
     	auton.autonInit();
     	autonMode = (int) autoChooser.getSelected();
     	
@@ -117,7 +122,7 @@ public class Robot extends IterativeRobot
     	
     	shooter.autonomous();
     	drive.autonomous();
-    	
+    	/*
     	switch(autonMode)
     	{
     		case 1:
@@ -130,11 +135,12 @@ public class Robot extends IterativeRobot
     			auton.autonomous3();
     			break;
     	}
+    	*/
     }
 
     public void teleopInit()			//runs when teleop mode is enabled
     {
-    	
+    	arduinoComm.setMode(RobotMode.teleop);
     }
     
     public void teleopPeriodic()		//runs periodically during teleop mode
@@ -143,10 +149,10 @@ public class Robot extends IterativeRobot
     	
         drive.teleop();
         shooter.teleop();
-        drive.controller.updateRumbleTimer();
-        shooter.controller.updateRumbleTimer();
         
         updateCamera();
+        
+        arduinoComm.updateAirMeter(drive.shifter.getWorkingPSI());
     }
     
     public void testInit()				//runs when test mode is enabled
@@ -164,7 +170,7 @@ public class Robot extends IterativeRobot
     
     public void updateSmartDashboard(Mode mode)
 	{
-		SmartDashboard.putNumber("Stored Air Pressure", Drive.shifter.getStoredPSI());
+		SmartDashboard.putNumber("Stored Air Pressure", Drive.shifter.getWorkingPSI());
 		SmartDashboard.putNumber("Working Air Pressure", Drive.shifter.getWorkingPSI());
 		
 		SmartDashboard.putNumber("Stored PSI", Drive.shifter.getStoredPSI());
