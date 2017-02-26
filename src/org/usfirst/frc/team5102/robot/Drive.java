@@ -3,8 +3,12 @@ package org.usfirst.frc.team5102.robot;
 import org.usfirst.frc.team5102.robot.Shifter.Gear;
 import org.usfirst.frc.team5102.robot.util.MultiSpeedController;
 import org.usfirst.frc.team5102.robot.util.RobotMap;
+import org.usfirst.frc.team5102.robot.util.Vision;
+
+import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.RobotDrive;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Talon;
 
 public class Drive extends RobotElement
@@ -14,6 +18,8 @@ public class Drive extends RobotElement
 	static RobotDrive robotDrive;
 	public static Shifter shifter;
 	static boolean aiming;
+	
+	static AHRS gyro;
 	
 	int counter = 0;
 	
@@ -45,6 +51,8 @@ public class Drive extends RobotElement
 		robotDrive = new RobotDrive(leftDriveMotors, rightDriveMotors);
 		robotDrive.setSafetyEnabled(false);
 		shifter = new Shifter();
+		
+		gyro = new AHRS(SPI.Port.kMXP);
 		
 		aiming = false;
 		
@@ -158,6 +166,13 @@ public class Drive extends RobotElement
 			shifter.shiftGears(Gear.high);
 			System.out.println("high gear");
 		}
+		
+		if(controller.getButtonX())
+		{
+			gyro.reset();
+		}
+		
+		//System.out.println(Vision.getTargetX() + " - " + gyro.getAngle());
 	}
 	
 	public void autonomous()

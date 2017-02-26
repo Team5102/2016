@@ -43,7 +43,7 @@ public class Aim_PID extends Thread implements PIDSource, PIDOutput
 		aimPID = new PIDController(0.05, 0.005, 0.1, this, this);
 		aimPID.setSetpoint(targetX);
 		aimPID.setOutputRange(-0.38, 0.38);
-		aimPID.setAbsoluteTolerance(5);
+		aimPID.setAbsoluteTolerance(.5);
 		
 		aimPID.setInputRange(0, 700);
 		
@@ -99,6 +99,7 @@ public class Aim_PID extends Thread implements PIDSource, PIDOutput
 	
 	public boolean aimX(AimMode mode)
 	{
+		/*
 		double currentX = Vision.getTargetX();		//read GRIP array
         
         if(Vision.targetFound())														//determines if target is in view
@@ -132,9 +133,82 @@ public class Aim_PID extends Thread implements PIDSource, PIDOutput
         	
         	Drive.robotDrive.arcadeDrive(0.0, 0.0);
         	
+        	
+        	
+        	
+        	
         	return true;
         }
-        return false;
+        */
+		
+		if(mode == AimMode.fast)
+		{
+			double currentX = Vision.getTargetX();		//read GRIP array
+	        
+	        if(Vision.targetFound())														//determines if target is in view
+	        {
+	        	while(!(currentX > (targetX-20) && currentX < (targetX+20)))
+	        	{
+	        		if(Thread.currentThread().isInterrupted()) {return false;}
+	        	
+	        		if(!Vision.targetFound())												//determines if target is in view
+	        		{
+	        			return false;													//cancels if no target is found
+	        		}
+	        		else
+	        		{
+	        			currentX = Vision.getTargetX();
+	        			
+	        			if(currentX < targetX)
+	        			{
+	        				Drive.robotDrive.tankDrive(-0.25-MPM, 0.36+MPM);
+	        			}
+	        			else if(currentX > targetX)
+	        			{
+	        				Drive.robotDrive.tankDrive(0.25+MPM, -0.38-MPM);
+	        			}
+	        		}
+	        	}
+	        }
+		}
+		else if(mode == AimMode.accurate)
+		{
+			double error = targetX - Vision.getTargetX();
+			double degrees = error/9;
+			
+			aimPID.setSetpoint(-degrees);
+			Drive.gyro.reset();
+			
+			aimPID.enable();
+			
+			int i = 0;
+			
+        	while(true)
+        	{
+        		if(Thread.currentThread().isInterrupted()) {return false;}
+        	
+        		if(!Vision.targetFound()) {return false;}
+        		
+        		if(aimPID.onTarget())
+        		{
+        			i++;
+        		}
+        		else
+        		{
+        			i = 0;
+        		}
+        		
+        		if(i > 100)
+        		{
+        			System.out.println("Target Found: " + Vision.getTargetX());
+        			
+        			break;
+        		}
+        	}
+        	aimPID.disable();
+		}
+		
+        return true;
 	}
 	
 	public boolean aimY()
@@ -186,7 +260,7 @@ public class Aim_PID extends Thread implements PIDSource, PIDOutput
 	@Override
 	public void pidWrite(double output)
 	{
-		Drive.robotDrive.arcadeDrive(0, output);
+		Drive.robotDrive.arcadeDrive(0, -output);
 		
 	}
 
@@ -205,6 +279,7 @@ public class Aim_PID extends Thread implements PIDSource, PIDOutput
 	@Override
 	public double pidGet()
 	{
+		/*
 		double currentX = Vision.getTargetX();
 		
 		if(currentX == 0)
@@ -212,5 +287,8 @@ public class Aim_PID extends Thread implements PIDSource, PIDOutput
 			aimPID.disable();
 		}
 		return currentX;
+		*/
+		
+		return Drive.gyro.getAngle();
 	}
 }

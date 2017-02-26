@@ -91,6 +91,8 @@ public class Robot extends IterativeRobot
         
         //System.out.println(drive.controller.getPOV());
         
+        
+        
     }
 
     public void autonomousInit()		//runs when autonomous mode is enabled
@@ -122,6 +124,9 @@ public class Robot extends IterativeRobot
     	
     	shooter.autonomous();
     	drive.autonomous();
+    	
+    	arduinoComm.updateAirMeter(drive.shifter.getWorkingPSI());
+    	
     	/*
     	switch(autonMode)
     	{
@@ -153,6 +158,12 @@ public class Robot extends IterativeRobot
         updateCamera();
         
         arduinoComm.updateAirMeter(drive.shifter.getWorkingPSI());
+        
+        /*
+        double error = 335 - Vision.getTargetX();
+		double degrees = error/9;
+		System.out.println(degrees + " - " + Drive.gyro.getAngle());
+		*/
     }
     
     public void testInit()				//runs when test mode is enabled
