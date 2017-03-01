@@ -40,7 +40,7 @@ public class Aim_PID extends Thread implements PIDSource, PIDOutput
 	
 	public Aim_PID()
 	{
-		aimPID = new PIDController(0.05, 0.005, 0.1, this, this);
+		aimPID = new PIDController(0.05, 0.01, 0.1, this, this);
 		aimPID.setSetpoint(targetX);
 		aimPID.setOutputRange(-0.38, 0.38);
 		aimPID.setAbsoluteTolerance(.5);
