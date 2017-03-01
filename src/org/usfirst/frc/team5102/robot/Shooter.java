@@ -35,10 +35,8 @@ public class Shooter extends RobotElement
 		super(1);
 		
 		shooterMotor1 = new CANTalon(RobotMap.shooterMotor1);
-		shooterMotor1.setSafetyEnabled(false);
 		
 		shooterMotor2 = new CANTalon(RobotMap.shooterMotor2);
-		shooterMotor2.setSafetyEnabled(false);
 		shooterMotor2.changeControlMode(TalonControlMode.Follower);
 		shooterMotor2.set(shooterMotor1.getDeviceID());
 		
